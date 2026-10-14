@@ -249,3 +249,26 @@ def test_investigar_plataforma_reanuda_pause_turn(monkeypatch):
     assert herramientas["web_search"]["allowed_domains"] == ["sareb.es"]
     assert herramientas["web_fetch"]["max_uses"] == 9
     assert [m["role"] for m in cuerpos[1]["messages"]] == ["user", "assistant"]
+
+
+def test_recoger_fuentes_en_paralelo(cfg, monkeypatch):
+    import threading
+    import time
+
+    cfg["fuentes"]["idealista"]["activo"] = False
+    cfg["fuentes"]["portales"] = [{"nombre": f"p{i}", "url": f"https://p{i}.es"} for i in range(4)]
+    cfg["fuentes"]["plataformas"] = []
+    a_la_vez = threading.Barrier(4, timeout=5)  # solo se abre si las 4 fuentes corren a la vez
+
+    def buscar(portal, ia):
+        a_la_vez.wait()
+        if portal["nombre"] == "p2":
+            raise RuntimeError("caído")
+        time.sleep(0.01 * (4 - int(portal["nombre"][1])))  # terminan en orden inverso
+        return [Piso(id=portal["nombre"], fuente=portal["nombre"], url=portal["url"], titulo="", precio=1)]
+
+    monkeypatch.setattr(portales, "buscar", buscar)
+    errores = []
+    pisos = agente.recoger(cfg, object(), errores)
+    assert [p.id for p in pisos] == ["p0", "p1", "p3"]  # se conserva el orden de config.yaml
+    assert errores == ["p2: caído"]

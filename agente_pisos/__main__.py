@@ -5,6 +5,8 @@ import argparse
 import logging
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from typing import Callable
 
 from . import informe, texto
 from .almacen import Almacen
@@ -18,42 +20,59 @@ from .modelos import Piso
 log = logging.getLogger("agente_pisos")
 
 
-def recoger(cfg: dict, ia, errores: list[str]) -> list[Piso]:
-    pisos: list[Piso] = []
-    if cfg["fuentes"]["idealista"].get("activo"):
+def _en_paralelo(tareas: list, hilos: int) -> list:
+    """Ejecuta las funciones a la vez (casi todo es esperar a la red) y devuelve sus
+    resultados en el mismo orden; si una falla, su resultado es la excepción."""
+    def ejecutar_una(f):
         try:
-            pisos += idealista.buscar(cfg, radio_km(cfg))
-        except Exception as e:  # una fuente caída no debe parar el resto
-            errores.append(f"Idealista: {e}")
+            return f()
+        except Exception as e:
+            return e
+    if not tareas:
+        return []
+    with ThreadPoolExecutor(max_workers=max(1, min(hilos, len(tareas)))) as pool:
+        return list(pool.map(ejecutar_una, tareas))
+
+
+def recoger(cfg: dict, ia, errores: list[str]) -> list[Piso]:
+    tareas: list[tuple[str, Callable[[], list[Piso]]]] = []
+    if cfg["fuentes"]["idealista"].get("activo"):
+        tareas.append(("Idealista", lambda: idealista.buscar(cfg, radio_km(cfg))))
     for portal in cfg["fuentes"].get("portales") or []:
         if ia is None:
             errores.append(f"{portal['nombre']}: falta ANTHROPIC_API_KEY para leer portales web")
             continue
-        try:
-            pisos += portales.buscar(portal, ia)
-        except Exception as e:
-            errores.append(f"{portal['nombre']}: {e}")
+        tareas.append((portal["nombre"], lambda portal=portal: portales.buscar(portal, ia)))
     for plataforma in cfg["fuentes"].get("plataformas") or []:
         if ia is None:
             errores.append(f"{plataforma['nombre']}: falta ANTHROPIC_API_KEY para buscar en la plataforma")
             continue
-        try:
-            pisos += plataformas.buscar(plataforma, ia, cfg)
-        except Exception as e:
-            errores.append(f"{plataforma['nombre']}: {e}")
+        tareas.append((plataforma["nombre"], lambda plataforma=plataforma: plataformas.buscar(plataforma, ia, cfg)))
+
+    pisos: list[Piso] = []
+    resultados = _en_paralelo([f for _, f in tareas], cfg["fuentes"].get("hilos", 8))
+    for (nombre, _), r in zip(tareas, resultados):
+        if isinstance(r, Exception):  # una fuente caída no debe parar el resto
+            errores.append(f"{nombre}: {r}")
+        else:
+            pisos += r
     return pisos
 
 
-def completar_energia(pisos: list[Piso], ia, maximo: int, errores: list[str]) -> None:
+def _leer_ficha(p: Piso, ia) -> None:
+    pagina = portales.descargar_texto(p.url)
+    p.energia = texto.energia(pagina) or (ia.buscar_energia(p.url, pagina) if ia else None) or p.energia
+    p.garaje = p.garaje or texto.menciona_garaje(pagina)
+    p.trastero = p.trastero or texto.menciona_trastero(pagina)
+
+
+def completar_energia(pisos: list[Piso], ia, maximo: int, errores: list[str], hilos: int = 8) -> None:
     """Abre la ficha de los pisos sin certificado energético para buscarlo."""
-    for p in [p for p in pisos if not p.energia_letra][:maximo]:
-        try:
-            pagina = portales.descargar_texto(p.url)
-            p.energia = texto.energia(pagina) or (ia.buscar_energia(p.url, pagina) if ia else None) or p.energia
-            p.garaje = p.garaje or texto.menciona_garaje(pagina)
-            p.trastero = p.trastero or texto.menciona_trastero(pagina)
-        except Exception as e:
-            log.warning("No se pudo leer la ficha %s: %s", p.url, e)
+    a_revisar = [p for p in pisos if not p.energia_letra][:maximo]
+    resultados = _en_paralelo([lambda p=p: _leer_ficha(p, ia) for p in a_revisar], hilos)
+    for p, r in zip(a_revisar, resultados):
+        if isinstance(r, Exception):
+            log.warning("No se pudo leer la ficha %s: %s", p.url, r)
     sin = sum(1 for p in pisos if not p.energia_letra)
     if sin > maximo:
         errores.append(f"{sin - maximo} pisos se quedaron sin revisar su ficha (límite max_fichas_por_ejecucion)")
@@ -84,7 +103,9 @@ def ejecutar(cfg: dict, prueba: bool, todos: bool) -> int:
     almacen = Almacen()
     if cfg["fuentes"].get("consultar_ficha_si_falta_energia"):
         sin_avisar = [p for p in candidatos if p.id not in almacen.datos]
-        completar_energia(sin_avisar, ia, cfg["fuentes"].get("max_fichas_por_ejecucion", 25), errores)
+        completar_energia(
+            sin_avisar, ia, cfg["fuentes"].get("max_fichas_por_ejecucion", 25), errores, cfg["fuentes"].get("hilos", 8)
+        )
     validos = ordenar([p for p in candidatos if motivo_descarte(p, cfg) is None])
     log.info("%d anuncios recogidos, %d cumplen los criterios", len(pisos), len(validos))
 

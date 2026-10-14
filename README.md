@@ -74,6 +74,7 @@ python -m agente_pisos                    # ejecución real
 - `exigir_calificacion_energetica: true`: descarta los pisos que no indican la letra del certificado.
 - `portales`: añade o cambia URLs. Haz la búsqueda en el portal con tus filtros, ordena por precio y copia la URL del navegador.
 - `whatsapp_proveedor: twilio`: usa Twilio en lugar de CallMeBot (rellena los secretos `TWILIO_*`).
+- `hilos`: cuántas fuentes y fichas se consultan a la vez (8 por defecto). Súbelo para que la ejecución vaya más rápida, o bájalo si algún portal te bloquea por hacer muchas peticiones seguidas.
 - `ia.modelo` / `ia.analizar_novedades`: el modelo de Claude y si se añade la valoración de cada piso.
 
 ## Limitaciones a tener en cuenta

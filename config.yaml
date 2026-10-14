@@ -56,6 +56,8 @@ fuentes:
   # Abrir la ficha de los anuncios que no indican certificado energético para buscarlo.
   consultar_ficha_si_falta_energia: true
   max_fichas_por_ejecucion: 25
+  # Cuántas fuentes y fichas se consultan a la vez. Más hilos = ejecución más rápida.
+  hilos: 8
 
 ia:
   # Modelo de Claude para leer portales y valorar los pisos (necesita ANTHROPIC_API_KEY).
