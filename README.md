@@ -12,12 +12,14 @@ Agente que busca **pisos en venta en A Coruña** y te avisa por **WhatsApp y ema
 | Orden | del **más barato** al más caro |
 | Certificado energético | se muestra siempre (A-G, "en trámite" o "sin indicar") |
 | Garaje / trastero | marcados con ⭐, van primero a igual precio y tienen su propia sección en el email |
+| Subastas | marcadas con 🔨 y la fecha de fin |
 
 ## Cómo funciona
 
 1. **Recoge anuncios** de:
    - **Idealista**, con su API oficial.
    - **pisos.com, Fotocasa y Habitaclia**, o cualquier portal cuya URL de búsqueda pegues en `config.yaml`. Claude lee la página y extrae los anuncios, así que no se rompe cuando el portal cambia su diseño.
+   - **Bancos y subastas: Escrapalia, Sareb, Aliseda y Altamira.** Sus webs cargan los pisos con JavaScript, así que Claude busca en internet solo dentro de cada dominio y abre las fichas. Las subastas salen con 🔨 y la fecha de fin. Su precio es el de salida, y el final suele ser mayor.
 2. **Quita duplicados**: el mismo piso publicado en varios portales sale una sola vez, con los datos combinados.
 3. **Calcula la distancia al centro** con las coordenadas del anuncio o, si no las trae, con la dirección (OpenStreetMap).
 4. **Busca el certificado energético** en la ficha de cada anuncio que no lo muestra en el listado.

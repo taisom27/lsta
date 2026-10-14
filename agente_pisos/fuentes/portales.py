@@ -62,6 +62,8 @@ def a_piso(nombre: str, a: dict) -> Piso | None:
         ascensor=a.get("ascensor"),
         planta=a.get("planta", ""),
         descripcion=a.get("descripcion", ""),
+        tipo_venta=a.get("tipo_venta") or "venta",
+        fin_subasta=a.get("fin_subasta") or "",
     )
 
 

@@ -37,6 +37,8 @@ ESQUEMA_ANUNCIOS = _objeto({
             "ascensor": _nullable("boolean"),
             "planta": {"type": "string"},
             "descripcion": {"type": "string"},
+            "tipo_venta": {"type": "string", "enum": ["venta", "subasta"]},
+            "fin_subasta": {"type": "string"},
         }),
     }
 })
@@ -57,7 +59,19 @@ SISTEMA_EXTRACCION = (
     "si en la página aparecen relativas, complétalas con el dominio de la página. "
     "calificacion_energetica: solo la letra A-G del consumo, o 'en trámite' / 'exento' si así "
     "se indica. Ignora publicidad, promociones de obra nueva destacadas que no sean anuncios "
-    "y anuncios de alquiler."
+    "y anuncios de alquiler. tipo_venta: 'subasta' si es una subasta (precio = precio de "
+    "salida o puja actual) y fin_subasta con la fecha en que termina, si aparece."
+)
+
+SISTEMA_INVESTIGACION = (
+    "Eres un agente inmobiliario que busca viviendas en venta para un comprador. Busca SOLO en "
+    "el sitio web indicado (bancos, servicers y plataformas de subastas). Usa la búsqueda web "
+    "y abre las páginas de resultados y las fichas de los inmuebles para comprobar los datos. "
+    "Ignora locales, garajes sueltos, terrenos, naves, vehículos y alquileres. Al terminar, "
+    "escribe una lista con CADA vivienda encontrada que pueda cumplir los criterios: URL de la "
+    "ficha, título, precio (o precio de salida si es subasta y la fecha de fin), habitaciones, "
+    "metros, dirección o barrio, certificado energético, garaje, trastero, ascensor y planta. "
+    "No inventes datos ni URLs: pon solo lo que hayas visto. Si no encuentras ninguna, dilo."
 )
 
 
@@ -96,6 +110,39 @@ class ClaudeInmobiliario:
             f"URL de la página: {url}\n\nContenido de la página:\n{texto_pagina}",
         )
         return datos["anuncios"]
+
+    def investigar_plataforma(self, nombre: str, dominio: str, criterios: str, max_busquedas: int) -> str:
+        """Busca viviendas en un dominio con las herramientas web de Claude; devuelve sus notas."""
+        herramientas = [
+            {"type": "web_search_20260209", "name": "web_search", "max_uses": max_busquedas,
+             "allowed_domains": [dominio], "user_location": {"type": "approximate", "country": "ES",
+                                                             "region": "Galicia", "city": "A Coruña"}},
+            {"type": "web_fetch_20260209", "name": "web_fetch", "max_uses": max_busquedas * 3,
+             "allowed_domains": [dominio]},
+        ]
+        mensajes = [{"role": "user", "content": f"Sitio: {nombre} ({dominio})\n\nCriterios: {criterios}"}]
+        notas = []
+        for _ in range(5):  # reanuda si la búsqueda se pausa (pause_turn)
+            resp = self.cliente.beta.messages.create(
+                model=self.modelo,
+                max_tokens=16000,
+                betas=["server-side-fallback-2026-07-01"],
+                fallbacks="default",
+                output_config={"effort": self.esfuerzo},
+                system=SISTEMA_INVESTIGACION,
+                tools=herramientas,
+                messages=mensajes,
+            )
+            notas += [b.text for b in resp.content if b.type == "text"]
+            if resp.stop_reason == "refusal":
+                raise RuntimeError("Claude rechazó la petición")
+            if resp.stop_reason != "pause_turn":
+                break
+            if len(mensajes) == 1:
+                mensajes.append({"role": "assistant", "content": resp.content})
+            else:
+                mensajes[-1] = {"role": "assistant", "content": list(mensajes[-1]["content"]) + list(resp.content)}
+        return "\n".join(notas)
 
     def buscar_energia(self, url: str, texto_ficha: str) -> str | None:
         datos = self._json(

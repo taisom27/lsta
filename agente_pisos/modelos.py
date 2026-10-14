@@ -29,6 +29,8 @@ class Piso:
     descripcion: str = ""
     foto: str = ""
     analisis: str = ""
+    tipo_venta: str = "venta"  # "venta" o "subasta"
+    fin_subasta: str = ""
     otras_fuentes: list[str] = field(default_factory=list)
 
     @property

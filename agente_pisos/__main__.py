@@ -11,7 +11,7 @@ from .almacen import Almacen
 from .avisos import email, whatsapp
 from .config import cargar, radio_km
 from .filtros import calcular_distancia, motivo_descarte, ordenar, quitar_duplicados
-from .fuentes import idealista, portales
+from .fuentes import idealista, plataformas, portales
 from .geo import Geocodificador
 from .modelos import Piso
 
@@ -33,6 +33,14 @@ def recoger(cfg: dict, ia, errores: list[str]) -> list[Piso]:
             pisos += portales.buscar(portal, ia)
         except Exception as e:
             errores.append(f"{portal['nombre']}: {e}")
+    for plataforma in cfg["fuentes"].get("plataformas") or []:
+        if ia is None:
+            errores.append(f"{plataforma['nombre']}: falta ANTHROPIC_API_KEY para buscar en la plataforma")
+            continue
+        try:
+            pisos += plataformas.buscar(plataforma, ia, cfg)
+        except Exception as e:
+            errores.append(f"{plataforma['nombre']}: {e}")
     return pisos
 
 

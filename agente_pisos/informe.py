@@ -19,6 +19,12 @@ def _extras(p: Piso) -> str:
     return " + ".join(e)
 
 
+def _subasta(p: Piso) -> str:
+    if p.tipo_venta != "subasta":
+        return ""
+    return "🔨 subasta" + (f" hasta {p.fin_subasta}" if p.fin_subasta else "")
+
+
 def _minutos(p: Piso, modo: str) -> str:
     return f"{p.minutos_centro:.0f} min {modo}" if p.minutos_centro is not None else "distancia ?"
 
@@ -34,7 +40,9 @@ def linea_whatsapp(i: int, p: Piso, modo: str, precio_antes: int | None = None) 
     datos += [f"⚡{_energia(p)}", _minutos(p, modo)]
     if _extras(p):
         datos.append(_extras(p))
-    lineas = [f"{i}. {estrella}*{precio}* · {' · '.join(datos)}", f"   📍 {p.barrio or p.direccion or '-'}"]
+    if _subasta(p):
+        datos.append(_subasta(p))
+    lineas = [f"{i}. {estrella}*{precio}* · {' · '.join(datos)}", f"   📍 {p.barrio or p.direccion or '-'} ({p.fuente})"]
     if p.analisis:
         lineas.append(f"   💬 {p.analisis}")
     lineas.append(f"   {p.url}")
@@ -60,6 +68,8 @@ def _fila(p: Piso, modo: str, precio_antes: int | None = None) -> str:
     precio = euros(p.precio)
     if precio_antes:
         precio += f"<br><small><s>{euros(precio_antes)}</s></small>"
+    if _subasta(p):
+        precio += f"<br><small>{escape(_subasta(p))}</small>"
     m2 = f"{p.metros:.0f} m²<br><small>{euros(p.precio_m2)}/m²</small>" if p.metros else "?"
     extras = "⭐ " + _extras(p) if p.tiene_extras else "—"
     analisis = f"<br><small>💬 {escape(p.analisis)}</small>" if p.analisis else ""
@@ -93,7 +103,8 @@ def email_html(
     resumen = (
         f"Pisos en venta en {escape(b['ciudad'])} a ≤{b['minutos_max']} min {modo} de "
         f"{escape(b['centro']['nombre'])}, {b['habitaciones_min']}+ habitaciones, hasta {euros(b['precio_max'])}. "
-        "Ordenados del más barato al más caro; ⭐ = con garaje o trastero."
+        "Ordenados del más barato al más caro; ⭐ = con garaje o trastero; "
+        "🔨 = subasta (el precio es el de salida, el final suele ser mayor)."
     )
     html = [f"<p style=\"font-family:sans-serif\">{resumen}</p>"]
     if nuevos:

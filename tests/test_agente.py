@@ -196,3 +196,56 @@ def test_claude_peticion_y_respuesta(monkeypatch):
     assert cuerpo["fallbacks"] == "default"
     assert "server-side-fallback-2026-07-01" in cabeceras["anthropic-beta"]
     assert cuerpo["output_config"]["format"]["type"] == "json_schema"
+
+
+def test_plataformas_filtra_dominio_y_subastas(cfg):
+    from agente_pisos.fuentes import plataformas
+
+    llamadas = {}
+
+    class IAFalsa:
+        def investigar_plataforma(self, nombre, dominio, criterios, max_busquedas):
+            llamadas["criterios"] = criterios
+            return "notas de la búsqueda"
+
+        def extraer_anuncios(self, url, texto):
+            return [
+                {"url": "https://www.escrapalia.com/subasta/piso-coruna-1", "titulo": "Piso", "precio": 90000,
+                 "habitaciones": 3, "metros": 80, "direccion": "Os Mallos", "barrio": "", "calificacion_energetica": None,
+                 "garaje": False, "trastero": False, "ascensor": None, "planta": "", "descripcion": "",
+                 "tipo_venta": "subasta", "fin_subasta": "2026-11-02"},
+                {"url": "https://www.otraweb.com/piso-2", "precio": 80000, "habitaciones": 2},
+            ]
+
+    pisos = plataformas.buscar({"nombre": "Escrapalia", "dominio": "escrapalia.com"}, IAFalsa(), cfg)
+    assert len(pisos) == 1 and pisos[0].tipo_venta == "subasta" and pisos[0].fin_subasta == "2026-11-02"
+    assert "170000" in llamadas["criterios"] and "A Coruña" in llamadas["criterios"]
+    wa = informe.whatsapp(pisos, [], cfg)
+    assert "🔨 subasta hasta 2026-11-02" in wa and "(Escrapalia)" in wa
+
+
+def test_investigar_plataforma_reanuda_pause_turn(monkeypatch):
+    import httpx2 as httpx
+    import anthropic
+    from agente_pisos import ia as modulo_ia
+
+    cuerpos = []
+    respuestas = iter([("pause_turn", "Primera parte."), ("end_turn", "Segunda parte.")])
+
+    def responder(req):
+        cuerpos.append(json.loads(req.content))
+        motivo, txt = next(respuestas)
+        return httpx.Response(200, json={
+            "id": "msg", "type": "message", "role": "assistant", "model": "claude-opus-5-5",
+            "stop_reason": motivo, "stop_sequence": None, "usage": {"input_tokens": 1, "output_tokens": 1},
+            "content": [{"type": "text", "text": txt}],
+        })
+
+    cliente = anthropic.Anthropic(api_key="t", http_client=httpx.Client(transport=httpx.MockTransport(responder)))
+    monkeypatch.setattr(modulo_ia.anthropic, "Anthropic", lambda: cliente)
+    notas = modulo_ia.ClaudeInmobiliario("claude-opus-5-5").investigar_plataforma("Sareb", "sareb.es", "pisos", 3)
+    assert notas == "Primera parte.\nSegunda parte."
+    herramientas = {t["name"]: t for t in cuerpos[0]["tools"]}
+    assert herramientas["web_search"]["allowed_domains"] == ["sareb.es"]
+    assert herramientas["web_fetch"]["max_uses"] == 9
+    assert [m["role"] for m in cuerpos[1]["messages"]] == ["user", "assistant"]

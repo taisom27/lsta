@@ -37,6 +37,22 @@ fuentes:
       url: "https://www.fotocasa.es/es/comprar/viviendas/a-coruna-capital/todas-las-zonas/l?maxPrice=170000&minRooms=2&sortType=price&sortOrderDesc=false"
     - nombre: habitaclia
       url: "https://www.habitaclia.com/comprar-vivienda-en-a_coruna.htm?pmax=170000&hab=2&ordenar=precio_asc"
+  # Plataformas de bancos, servicers y subastas. Sus webs cargan los pisos con JavaScript,
+  # así que Claude busca en internet SOLO dentro de cada dominio y abre las fichas.
+  # Las subastas salen marcadas con 🔨 (el precio es el de salida).
+  plataformas:
+    - nombre: Escrapalia
+      dominio: escrapalia.com
+    - nombre: Sareb
+      dominio: sareb.es
+    - nombre: Aliseda
+      dominio: alisedainmobiliaria.com
+    - nombre: Altamira
+      dominio: altamirainmuebles.com
+    # - nombre: Bocana
+    #   dominio: PENDIENTE   # indica la web de Bocana para activarla
+  # Búsquedas web por plataforma y ejecución (cada una abre hasta el triple de fichas).
+  max_busquedas_por_plataforma: 5
   # Abrir la ficha de los anuncios que no indican certificado energético para buscarlo.
   consultar_ficha_si_falta_energia: true
   max_fichas_por_ejecucion: 25
