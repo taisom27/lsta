@@ -1,0 +1,57 @@
+# Configuración del agente de búsqueda de pisos.
+# Cambia los valores y vuelve a ejecutar; no hace falta tocar el código.
+
+busqueda:
+  ciudad: "A Coruña"
+  # Punto que se considera "el centro" (Plaza de María Pita).
+  centro:
+    nombre: "Plaza de María Pita"
+    lat: 43.3712
+    lon: -8.3960
+  # Tiempo máximo hasta el centro y cómo se mide.
+  #   andando -> ~80 m/min  (5 min ≈ 0,4 km)
+  #   bus     -> ~250 m/min (5 min ≈ 1,25 km)
+  #   coche   -> ~500 m/min (5 min ≈ 2,5 km)
+  minutos_max: 5
+  modo: coche
+  precio_max: 170000
+  habitaciones_min: 2
+  # true  -> descarta los anuncios que no indican la letra (A-G) del certificado energético.
+  # false -> los muestra igualmente, marcados como "sin indicar".
+  exigir_calificacion_energetica: false
+  # Qué hacer con anuncios cuya ubicación no se ha podido calcular.
+  descartar_sin_ubicacion: false
+
+fuentes:
+  # API oficial de Idealista (necesita IDEALISTA_API_KEY e IDEALISTA_API_SECRET).
+  idealista:
+    activo: true
+    max_paginas: 5
+  # Cualquier portal con búsqueda en web: abre el portal en el navegador, aplica tus
+  # filtros (A Coruña, venta, hasta 170.000 €, 2+ habitaciones, orden por precio) y
+  # pega aquí la URL resultante. La IA lee la página y extrae los anuncios.
+  portales:
+    - nombre: pisos.com
+      url: "https://www.pisos.com/venta/pisos-a_coruna_capital/hasta-170000/desde-2-habitaciones/"
+    - nombre: fotocasa
+      url: "https://www.fotocasa.es/es/comprar/viviendas/a-coruna-capital/todas-las-zonas/l?maxPrice=170000&minRooms=2&sortType=price&sortOrderDesc=false"
+    - nombre: habitaclia
+      url: "https://www.habitaclia.com/comprar-vivienda-en-a_coruna.htm?pmax=170000&hab=2&ordenar=precio_asc"
+  # Abrir la ficha de los anuncios que no indican certificado energético para buscarlo.
+  consultar_ficha_si_falta_energia: true
+  max_fichas_por_ejecucion: 25
+
+ia:
+  # Modelo de Claude para leer portales y valorar los pisos (necesita ANTHROPIC_API_KEY).
+  modelo: claude-opus-5-5
+  esfuerzo: low
+  # Añade a cada piso nuevo una valoración corta (puntos fuertes y pegas).
+  analizar_novedades: true
+
+avisos:
+  email: true
+  whatsapp: true
+  # Proveedor de WhatsApp: "callmebot" (gratis, uso personal) o "twilio".
+  whatsapp_proveedor: callmebot
+  # Cuántos pisos enviar como máximo por WhatsApp (el email lleva la lista completa).
+  max_whatsapp: 10
