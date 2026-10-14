@@ -57,6 +57,14 @@ def test_radio(cfg):
     assert radio_km(cfg) == pytest.approx(0.4)
 
 
+def test_solo_segunda_mano(cfg):
+    assert motivo_descarte(piso(obra_nueva=True), cfg) == "obra nueva"
+    assert motivo_descarte(piso(), cfg) is None
+    cfg["busqueda"]["solo_segunda_mano"] = False
+    assert motivo_descarte(piso(obra_nueva=True), cfg) is None
+    assert idealista.a_piso({"propertyCode": "1", "price": 1, "newDevelopment": True}).obra_nueva
+
+
 def test_filtros(cfg):
     centro = cfg["busqueda"]["centro"]
     cerca = piso(lat=centro["lat"] + 0.005, lon=centro["lon"])  # ~0,55 km

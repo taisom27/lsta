@@ -3,11 +3,11 @@
 
 busqueda:
   ciudad: "A Coruña"
-  # Punto que se considera "el centro" (Plaza de María Pita).
+  # Punto alrededor del cual se busca (Casa de las Ciencias, parque de Santa Margarita).
   centro:
-    nombre: "Plaza de María Pita"
-    lat: 43.3712
-    lon: -8.3960
+    nombre: "Casa de las Ciencias"
+    lat: 43.3631
+    lon: -8.4090
   # Tiempo máximo hasta el centro y cómo se mide.
   #   andando -> ~80 m/min  (5 min ≈ 0,4 km)
   #   bus     -> ~250 m/min (5 min ≈ 1,25 km)
@@ -16,6 +16,8 @@ busqueda:
   modo: coche
   precio_max: 170000
   habitaciones_min: 2
+  # true -> solo pisos de segunda mano (descarta los anuncios de obra nueva).
+  solo_segunda_mano: true
   # true  -> descarta los anuncios que no indican la letra (A-G) del certificado energético.
   # false -> los muestra igualmente, marcados como "sin indicar".
   exigir_calificacion_energetica: false

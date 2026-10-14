@@ -26,6 +26,7 @@ class Piso:
     trastero: bool = False
     ascensor: bool | None = None
     planta: str = ""
+    obra_nueva: bool = False
     descripcion: str = ""
     foto: str = ""
     analisis: str = ""

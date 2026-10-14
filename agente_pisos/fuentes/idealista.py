@@ -44,6 +44,7 @@ def a_piso(e: dict) -> Piso:
         garaje=bool(parking.get("hasParkingSpace")),
         ascensor=e.get("hasLift"),
         planta=str(e.get("floor") or ""),
+        obra_nueva=bool(e.get("newDevelopment")),
         descripcion=e.get("description", ""),
         foto=e.get("thumbnail", ""),
     )

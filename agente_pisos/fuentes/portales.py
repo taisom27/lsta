@@ -60,6 +60,7 @@ def a_piso(nombre: str, a: dict) -> Piso | None:
         garaje=bool(a.get("garaje")),
         trastero=bool(a.get("trastero")),
         ascensor=a.get("ascensor"),
+        obra_nueva=bool(a.get("obra_nueva")),
         planta=a.get("planta", ""),
         descripcion=a.get("descripcion", ""),
     )

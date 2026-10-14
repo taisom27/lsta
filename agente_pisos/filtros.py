@@ -23,6 +23,8 @@ def motivo_descarte(p: Piso, cfg: dict, comprobar_energia: bool = True) -> str |
         return "habitaciones"
     if p.habitaciones is None:
         return "habitaciones desconocidas"
+    if b.get("solo_segunda_mano") and p.obra_nueva:
+        return "obra nueva"
     if p.distancia_km is None:
         if b.get("descartar_sin_ubicacion"):
             return "ubicación desconocida"

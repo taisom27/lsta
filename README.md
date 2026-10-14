@@ -6,7 +6,8 @@ Agente que busca **pisos en venta en A Coruña** y te avisa por **WhatsApp y ema
 
 | Criterio | Valor |
 |---|---|
-| Zona | a ≤ 5 minutos del centro (Plaza de María Pita) |
+| Zona | a ≤ 5 minutos de la Casa de las Ciencias (parque de Santa Margarita) |
+| Tipo | solo **segunda mano** (sin obra nueva) |
 | Habitaciones | 2 o más |
 | Precio | hasta 170.000 € |
 | Orden | del **más barato** al más caro |
@@ -27,7 +28,7 @@ Agente que busca **pisos en venta en A Coruña** y te avisa por **WhatsApp y ema
    - **WhatsApp**: hasta 10 pisos.
    - **Email**: tablas completas con nuevos, bajadas, ⭐ con garaje o trastero, y todos los que cumplen.
 
-### "5 minutos del centro"
+### "5 minutos de la Casa de las Ciencias"
 
 Se mide en línea recta según el `modo` de `config.yaml`:
 
@@ -37,7 +38,7 @@ Se mide en línea recta según el `modo` de `config.yaml`:
 | `bus` | 1,25 km |
 | `coche` (por defecto) | 2,5 km |
 
-Andando la zona es muy pequeña (Ciudad Vieja, Pescadería). Si quieres eso, cambia `modo: andando` o sube `minutos_max`.
+Andando la zona es muy pequeña (el parque de Santa Margarita y las calles de alrededor). Si quieres eso, cambia `modo: andando` o sube `minutos_max`.
 
 ## Puesta en marcha (≈ 15 minutos, sin instalar nada)
 

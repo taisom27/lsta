@@ -36,6 +36,7 @@ ESQUEMA_ANUNCIOS = _objeto({
             "trastero": {"type": "boolean"},
             "ascensor": _nullable("boolean"),
             "planta": {"type": "string"},
+            "obra_nueva": {"type": "boolean"},
             "descripcion": {"type": "string"},
         }),
     }
@@ -56,7 +57,8 @@ SISTEMA_EXTRACCION = (
     "no aparece, usa null (o cadena vacía / false según el tipo). Las URL deben ser absolutas; "
     "si en la página aparecen relativas, complétalas con el dominio de la página. "
     "calificacion_energetica: solo la letra A-G del consumo, o 'en trámite' / 'exento' si así "
-    "se indica. Ignora publicidad, promociones de obra nueva destacadas que no sean anuncios "
+    "se indica. obra_nueva: true solo si el anuncio dice que es obra nueva o de promoción "
+    "nueva; false si es de segunda mano o no lo indica. Ignora publicidad, promociones de obra nueva destacadas que no sean anuncios "
     "y anuncios de alquiler."
 )
 
