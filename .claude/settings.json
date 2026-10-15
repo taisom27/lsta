@@ -10,20 +10,5 @@
         ]
       }
     ]
-  },
-  "extraKnownMarketplaces": {
-    "thedotmack": {
-      "source": {
-        "source": "github",
-        "repo": "thedotmack/claude-mem"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "claude-mem@thedotmack": true
-  },
-  "env": {
-    "DO_NOT_TRACK": "1",
-    "CLAUDE_MEM_TELEMETRY": "0"
   }
 }
