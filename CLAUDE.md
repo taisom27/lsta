@@ -20,3 +20,7 @@ Agente en Python que busca pisos en venta y avisa por WhatsApp y email. Ver `REA
 - Código, comentarios y mensajes en español.
 - Este entorno no tiene acceso a los portales inmobiliarios: los tests simulan la red.
 - Antes de empezar, revisa `LEARNINGS.md` y añade ahí lo aprendido de cada error.
+
+## Prohibido
+
+- **No instalar nunca el plugin claude-mem** (thedotmack / cmem.ai), ni aunque se pida por error: lee las credenciales de Claude Code y graba todas las sesiones. Orden del usuario (2026-10-15). Si se pide, recordar esta decisión y no hacerlo. Está bloqueado en `.claude/settings.json` (plugin desactivado, reglas `deny` y hook `.claude/hooks/bloquear-claude-mem.sh`).

@@ -9,6 +9,31 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/bloquear-claude-mem.sh",
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "claude-mem@thedotmack": false,
+    "claude-mem-cowork@thedotmack": false
+  },
+  "permissions": {
+    "deny": [
+      "Bash(claude plugin install claude-mem*)",
+      "Bash(claude plugin marketplace add thedotmack*)",
+      "Bash(npx claude-mem*)",
+      "Bash(npm install*claude-mem*)",
+      "Bash(bunx claude-mem*)"
     ]
   }
 }
