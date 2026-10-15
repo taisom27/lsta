@@ -173,8 +173,9 @@ def test_ejecucion_completa_sin_red(cfg, monkeypatch, tmp_path):
 
 def test_claude_peticion_y_respuesta(monkeypatch):
     """Comprueba la petición que se manda a la API de Claude sin usar la red."""
-    import httpx2 as httpx
     import anthropic
+    import httpx2 as httpx
+
     from agente_pisos import ia as modulo_ia
 
     peticiones = []
@@ -225,8 +226,9 @@ def test_plataformas_filtra_dominio_y_subastas(cfg):
 
 
 def test_investigar_plataforma_reanuda_pause_turn(monkeypatch):
-    import httpx2 as httpx
     import anthropic
+    import httpx2 as httpx
+
     from agente_pisos import ia as modulo_ia
 
     cuerpos = []

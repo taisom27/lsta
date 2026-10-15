@@ -34,8 +34,8 @@ def descargar_texto(url: str) -> str:
         etiqueta.decompose()
     for a in sopa.find_all("a", href=True):
         a.replace_with(f" [{a.get_text(' ', strip=True)}]({urljoin(url, a['href'])}) ")
-    lineas = (l.strip() for l in sopa.get_text("\n").splitlines())
-    return "\n".join(l for l in lineas if l)
+    lineas = (linea.strip() for linea in sopa.get_text("\n").splitlines())
+    return "\n".join(linea for linea in lineas if linea)
 
 
 def _id(nombre: str, url: str) -> str:
