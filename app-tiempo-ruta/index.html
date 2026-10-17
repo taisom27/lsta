@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <title>Tiempo en ruta</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <header>
+    <h1>Tiempo en ruta</h1>
+    <span id="estado-gps" class="chip">GPS apagado</span>
+  </header>
+
+  <main>
+    <section id="alerta" class="alerta ok" aria-live="assertive">
+      <strong id="alerta-titulo">Pulsa «Empezar»</strong>
+      <span id="alerta-detalle">Avisos de lluvia intensa, baja visibilidad, desbordamientos y derrumbes a 500 m por delante.</span>
+    </section>
+
+    <section class="tarjeta">
+      <h2>A 500 m por delante</h2>
+      <div class="rejilla">
+        <div><span class="dato" id="t-lluvia">–</span><span class="etiqueta">lluvia (mm/h)</span></div>
+        <div><span class="dato" id="t-visibilidad">–</span><span class="etiqueta">visibilidad</span></div>
+        <div><span class="dato" id="t-rachas">–</span><span class="etiqueta">rachas (km/h)</span></div>
+        <div><span class="dato" id="t-temp">–</span><span class="etiqueta">temperatura</span></div>
+      </div>
+      <div class="rejilla dos">
+        <div><span class="dato peq" id="r-desbordamiento">–</span><span class="etiqueta">desbordamiento</span></div>
+        <div><span class="dato peq" id="r-derrumbe">–</span><span class="etiqueta">derrumbes</span></div>
+      </div>
+      <p class="nota" id="t-fuente">Sin datos todavía.</p>
+    </section>
+
+    <section class="tarjeta">
+      <h2 id="d-titulo">Hacia Madrid</h2>
+      <div class="rejilla">
+        <div><span class="dato grande" id="d-necesaria">–</span><span class="etiqueta">media necesaria (km/h)</span></div>
+        <div><span class="dato" id="d-actual">–</span><span class="etiqueta">velocidad actual</span></div>
+        <div><span class="dato" id="d-restante">–</span><span class="etiqueta">km restantes</span></div>
+        <div><span class="dato" id="d-tiempo">–</span><span class="etiqueta">tiempo para llegar</span></div>
+      </div>
+      <p class="nota" id="d-nota">La velocidad se calcula para llegar en el tiempo elegido sin pasar nunca del límite.</p>
+    </section>
+
+    <div class="botones">
+      <button id="boton-empezar" class="principal">Empezar</button>
+      <button id="boton-repetir" class="secundario" disabled>Repetir aviso</button>
+    </div>
+
+    <section class="tarjeta">
+      <h2>Mapa de Windy</h2>
+      <iframe id="windy" title="Mapa de lluvia de Windy" loading="lazy"
+        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=6&overlay=rain&product=ecmwf&level=surface&lat=41.9&lon=-6.0"></iframe>
+    </section>
+
+    <details class="tarjeta" id="ajustes">
+      <summary>Ajustes</summary>
+      <label>Destino <input id="c-destino" type="text"></label>
+      <div class="fila">
+        <label>Latitud <input id="c-lat" type="number" step="0.0001"></label>
+        <label>Longitud <input id="c-lon" type="number" step="0.0001"></label>
+      </div>
+      <div class="fila">
+        <label>Llegar en (minutos) <input id="c-minutos" type="number" min="1"></label>
+        <label>Límite (km/h) <input id="c-limite" type="number" min="30" max="130"></label>
+      </div>
+      <label>Voz
+        <select id="c-voz">
+          <option value="cada100">Cada 100 m (resumen corto)</option>
+          <option value="alarmas">Solo cambios, alarmas y cada km</option>
+          <option value="apagada">Sin voz</option>
+        </select>
+      </label>
+      <label>Clave de Windy (Point Forecast API)
+        <input id="c-windy" type="password" autocomplete="off" placeholder="Opcional: sin clave se usa Open-Meteo">
+      </label>
+      <p class="nota">Consigue la clave en api.windy.com/keys. Se guarda solo en este móvil.</p>
+      <button id="boton-simular" class="secundario">Simular trayecto (sin moverte)</button>
+    </details>
+
+    <p class="aviso-legal">Mira la carretera, no el móvil: la app habla sola. Los riesgos de desbordamiento y derrumbe son una estimación a partir de la lluvia acumulada y el caudal de los ríos; ante cortes o incidencias reales manda la DGT (011).</p>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

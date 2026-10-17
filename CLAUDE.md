@@ -8,11 +8,13 @@ Agente en Python que busca pisos en venta y avisa por WhatsApp y email. Ver `REA
 - Tests: `python -m pytest -q`
 - Linter: `ruff check .`
 - Probar sin enviar avisos: `python -m agente_pisos --prueba --todos`
+- App «Tiempo en ruta» (JS, sin dependencias): tests `node --test 'app-tiempo-ruta/tests/*.test.mjs'`
 
 ## Estructura
 
 - `agente_pisos/fuentes/`: Idealista (API), portales web (HTML + Claude) y plataformas de bancos/subastas (búsqueda web de Claude)
 - `agente_pisos/filtros.py`: criterios, orden y duplicados · `informe.py`: textos de WhatsApp/email · `avisos/`: envío
+- `app-tiempo-ruta/`: app web de avisos del tiempo en carretera (voz cada 100 m, Windy + Open-Meteo + OSRM)
 - `config.yaml`: criterios de búsqueda y fuentes · `data/vistos.json`: pisos ya avisados (lo actualiza GitHub Actions)
 
 ## Notas

@@ -87,3 +87,41 @@ python -m agente_pisos                    # ejecución real
 ```bash
 pip install pytest && python -m pytest -q
 ```
+
+---
+
+# App «Tiempo en ruta» (`app-tiempo-ruta/`)
+
+App web para el móvil que, mientras conduces, avisa **por voz cada 100 m** del tiempo que hace **500 m por delante del coche** y te dice la **velocidad media necesaria** para llegar a tu destino (por defecto Madrid en 1 h 30).
+
+**Qué avisa** (en el punto situado 500 m más adelante siguiendo la ruta por carretera):
+
+| Alarma | Cuándo salta |
+|---|---|
+| Lluvia intensa | ≥ 15 mm/h (aviso) · ≥ 30 mm/h (peligro), o tormenta / chubasco fuerte |
+| Baja visibilidad | < 1000 m (aviso) · < 200 m (peligro), o niebla |
+| Desbordamiento | Río cercano ×2 / ×4 sobre su caudal habitual, o ≥ 40 / 80 mm en 24 h |
+| Derrumbes | ≥ 60 mm en 24 h o ≥ 100 mm en 72 h; peligro si además llueve fuerte |
+| Viento | Rachas ≥ 70 / 90 km/h |
+
+Las alarmas nuevas suenan con pitido, vibración y voz. Si la alarma no cambia, cada 100 m solo se repite la principal; cada km se da el resumen completo con la velocidad.
+
+**Velocidad para llegar a tiempo**: distancia restante por carretera ÷ tiempo que queda. Si hace falta pasar del límite (120 km/h por defecto), la app **no** da esa cifra: dice que no se llega a tiempo y a qué hora llegarías yendo al límite. Ejemplo: A Coruña–Madrid son ~590 km, así que en 1 h 30 no es posible (a 120 km/h son casi 5 h).
+
+**Fuentes**
+
+- **Windy** (Point Forecast API): lluvia, viento y rachas. Necesita clave (api.windy.com/keys, se pone en «Ajustes»). Ojo: la clave gratuita de prueba devuelve datos alterados a propósito; para datos reales hace falta la clave de pago. El mapa de lluvia de Windy se muestra siempre (no necesita clave).
+- **Open-Meteo** (gratis, sin clave): visibilidad, lluvia de los últimos 15 min y acumulada 24/72 h. Sin clave de Windy es la fuente principal. Con las dos, se queda con el valor más desfavorable.
+- **Open-Meteo Flood (GloFAS)**: caudal del río más cercano frente a su mediana de 30 días.
+- **OSRM**: ruta por carretera para situar el punto de 500 m y medir la distancia restante.
+
+Los riesgos de desbordamiento y derrumbe son **estimaciones** a partir de la lluvia y los ríos: no hay una fuente pública de derrumbes en tiempo real que se pueda leer desde el móvil. Para cortes reales, DGT (011 / infocar.dgt.es).
+
+**Cómo usarla en el móvil**
+
+1. Activa GitHub Pages: *Settings → Pages → Source: GitHub Actions*. El workflow `App Tiempo en ruta` la publica al hacer push a la rama principal (o a mano desde *Actions*). En repos privados, Pages requiere un plan de pago; alternativa: arrastra la carpeta `app-tiempo-ruta/` a app.netlify.com/drop.
+2. Abre la URL en Chrome (Android) o Safari (iPhone), permite la ubicación y «Añadir a pantalla de inicio».
+3. Pon el móvil en el soporte, sube el volumen y pulsa **Empezar**. La pantalla se mantiene encendida.
+4. «Ajustes» → «Simular trayecto» recorre A Coruña→Madrid a 110 km/h para probarla sin moverte.
+
+Probar en el ordenador: `cd app-tiempo-ruta && python -m http.server 8000` y abrir http://localhost:8000. Tests: `node --test 'app-tiempo-ruta/tests/*.test.mjs'`.
