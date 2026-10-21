@@ -5,3 +5,5 @@
 - **Los secretos de GitHub vacíos llegan como cadena vacía**, no como variable ausente. Usar `os.environ.get(X) or valor_por_defecto`, no `os.environ.get(X, valor_por_defecto)`.
 - **`pkill -f patrón` / `pgrep -f patrón` dentro de un comando que contiene ese mismo patrón mata la propia shell** (salió con código 144). Para buscar procesos usa `ps -eo pid,args | grep "[w]orker"` (el corchete evita coincidir consigo mismo) y mata por PID.
 - **`/plugin` no existe en las sesiones en la nube.** Para instalar o quitar plugins aquí: `claude plugin install|uninstall <nombre>@<marketplace>` y `claude plugin marketplace add|remove`.
+- **En la nube, `gh` no puede usar GraphQL** (`gh release view`, `gh pr view`… dan 403). Usa la API REST: `gh api repos/taisom27/lsta/releases/tags/<tag>`. `gh run view` sí funciona.
+- **Aquí no hay SDK de Android** (dl.google.com bloqueado): las apps Android se compilan en GitHub Actions (`ubuntu-latest` ya trae el SDK) y la verificación es ese workflow.
