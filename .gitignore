@@ -5,3 +5,9 @@ __pycache__/
 .pytest_cache/
 data/ultimo_informe.html
 .ruff_cache/
+
+# App Android
+grabadora-android/.gradle/
+grabadora-android/**/build/
+grabadora-android/local.properties
+grabadora-android/app/src/main/assets/modelo/
