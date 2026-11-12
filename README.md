@@ -125,3 +125,37 @@ Los riesgos de desbordamiento y derrumbe son **estimaciones** a partir de la llu
 4. «Ajustes» → «Simular trayecto» recorre A Coruña→Madrid a 110 km/h para probarla sin moverte.
 
 Probar en el ordenador: `cd app-tiempo-ruta && python -m http.server 8000` y abrir http://localhost:8000. Tests: `node --test 'app-tiempo-ruta/tests/*.test.mjs'`.
+
+---
+
+# Guardián Bluetooth (`guardian_bluetooth/`)
+
+Programa para Linux (también Raspberry Pi) que vigila tus dispositivos Bluetooth y blinda el equipo donde corre. Solo usa `bluetoothctl` (paquete `bluez`), sin dependencias de Python.
+
+**Lo que puede y lo que no puede hacer.** Ningún programa externo puede obligar a un altavoz (Bose Revolve, cascos...) a aceptar solo tus aparatos: eso lo decide el propio altavoz. El guardián:
+
+- **Avisa cuando tu altavoz está en modo emparejamiento**, que es el único momento en que un desconocido (un vecino) puede verlo y conectarse. Lo detecta porque aparece en una búsqueda de Bluetooth clásico.
+- **Blinda este equipo**: lo hace invisible, no acepta emparejamientos nuevos y desconecta, bloquea y olvida cualquier dispositivo que no esté en tu lista.
+- **Opcional:** avisa de aparatos desconocidos que están muy cerca de forma continuada (`--desconocidos`).
+
+**Uso**
+
+```bash
+sudo apt install bluez                                  # si no está
+python -m guardian_bluetooth escanear                   # ver qué hay cerca y sus direcciones
+python -m guardian_bluetooth añadir 04:52:C7:AA:BB:CC "Bose Revolve"
+python -m guardian_bluetooth añadir --emparejados       # añade todo lo emparejado con este equipo
+python -m guardian_bluetooth lista
+python -m guardian_bluetooth blindar                    # oculta el equipo y expulsa lo ajeno (pide confirmación)
+python -m guardian_bluetooth vigilar --blindar --voz    # vigila sin parar, avisa por pantalla y voz
+```
+
+La lista se guarda en `~/.config/guardian-bluetooth/mis_dispositivos.json` (o en la ruta de `GUARDIAN_BT_LISTA`), nunca en el repositorio. Para la voz hace falta `spd-say` o `espeak-ng`.
+
+**Proteger el Bose Revolve (en el propio altavoz)**
+
+1. **Borra su lista de emparejados:** mantén pulsado el botón de Bluetooth unos 10 s, hasta que diga que la lista se ha borrado.
+2. **Vuelve a emparejar solo tus aparatos**, cerca del altavoz y en casa.
+3. **No lo dejes en modo emparejamiento:** el piloto de Bluetooth parpadea en azul mientras lo está. Cuando acabes de emparejar, conecta tu móvil o apaga el altavoz.
+4. **Apágalo cuando no lo uses** y pon al día el firmware con la app de Bose si la tienes.
+5. Si oyes «conectado a…» con un nombre que no es tuyo, apágalo y repite el paso 1.

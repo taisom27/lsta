@@ -15,6 +15,7 @@ Agente en Python que busca pisos en venta y avisa por WhatsApp y email. Ver `REA
 - `agente_pisos/fuentes/`: Idealista (API), portales web (HTML + Claude) y plataformas de bancos/subastas (búsqueda web de Claude)
 - `agente_pisos/filtros.py`: criterios, orden y duplicados · `informe.py`: textos de WhatsApp/email · `avisos/`: envío
 - `app-tiempo-ruta/`: app web de avisos del tiempo en carretera (voz cada 100 m, Windy + Open-Meteo + OSRM)
+- `guardian_bluetooth/`: vigila y blinda dispositivos Bluetooth en Linux con `bluetoothctl` (`python -m guardian_bluetooth`)
 - `config.yaml`: criterios de búsqueda y fuentes · `data/vistos.json`: pisos ya avisados (lo actualiza GitHub Actions)
 
 ## Notas
